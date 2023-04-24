@@ -1,10 +1,11 @@
 const axios = require('axios')
 const port = 3000
 require('dotenv').config();
+const Oauth1Helper = require('./Oauth1Helper')
 
 async function tweetBTC() {
-    // const url = 'https://inscribe.news/api/data/ord-news'
     const url = 'https://inscribe.news/api/data/ord-news'
+    // const url = 'https://twitter-bot-inscriptions-api.onrender.com/'
 
     let last_tweet_name = ""
     let last_tweet_id = ""
@@ -29,7 +30,7 @@ async function tweetBTC() {
 
         let tweet_body_trimmed
 
-        if (typeof (tweet_body) == 'string')
+        if (typeof (tweet_body) == 'string' && typeof (tweet_url) == 'string')
             tweet_body_trimmed = tweet_body.length > (260 - tweet_url.length) ? tweet_body.slice(0, (260 - tweet_url.length)) + "..." : tweet_body;
 
         let tweet_b_text = tweet_body_trimmed + " " + tweet_url
@@ -38,11 +39,18 @@ async function tweetBTC() {
             "text": tweet_b_text
         }
 
+        const request = {
+            url: 'https://api.twitter.com/2/tweets',
+            method: 'POST',
+            body: body
+        };
+
+        const authHeader = Oauth1Helper.getAuthHeaderForRequest(request);
+        console.log(authHeader)
+
         try {
             const res = await axios.post('https://api.twitter.com/2/tweets', body, {
-                headers: {
-                    'Authorization': process.env.AUTHORIZATION
-                }
+                headers: authHeader
             })
         } catch (error) {
             console.log(error)
@@ -80,14 +88,20 @@ async function tweetBTC() {
                     tweet_b_text = tweet_b_text.replace("undefined", "");
 
                     const body = {
-                        "text": tweet_body_trimmed_local + " " + tweet_body_resp['data']['url']
+                        "text": tweet_b_text
                     }
+
+                    const request = {
+                        url: 'https://api.twitter.com/2/tweets',
+                        method: 'POST',
+                        body: body
+                    };
+
+                    const authHeader = Oauth1Helper.getAuthHeaderForRequest(request);
 
                     try {
                         const res = await axios.post('https://api.twitter.com/2/tweets', body, {
-                            headers: {
-                                'Authorization': process.env.AUTHORIZATION
-                            }
+                            headers: authHeader
                         })
                     } catch (error) {
                         // console.log(error)
@@ -103,7 +117,7 @@ async function tweetBTC() {
 
             }
 
-        }, 15000);
+        }, 120000);
 
     } catch (error) {
         console.log(error)
