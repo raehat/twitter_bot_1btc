@@ -84,7 +84,7 @@ async function tweetBTC() {
                         tweet_body_trimmed_local = tweet_body_resp['data']['body'].substring(0, tweet_body_resp['data']['body'].indexOf(".") + 1);
 
 
-                    let tweet_b_text = tweet_body_trimmed_local + " " + tweet_body_resp['data']['url']
+                    let tweet_b_text = tweet_body_trimmed_local + " " + " https://inscribe.news/api/news/" + resp_last_tweet_id
                     tweet_b_text = tweet_b_text.replace("undefined", "");
 
                     const body = {
